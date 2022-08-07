@@ -4,42 +4,65 @@
   2 - Obter endereço do usuário a partir do Id do usuário
 */
 
-
-function obterUsuario(callback) {
-  setTimeout(() => {
-    return callback({ id: 123, name: 'Edson Bruno' });
-  }, 1000);
-}
-
-function obterTelefone(idUser, callback) {
-  setTimeout(() => {
-    return callback({ tel: '(11) 99586-2568' });
-  }, 2000);
-}
-
-function obterEndereco(idUser, callback) {
-  setTimeout(() => {
-    return callback({ address: 'Rua Mococa, 269 - São Paulo - SP' });
-  }, 3000);
-}
-
-function print(message, callback) {
-  return callback(message);
-}
-
-// callback hell
-function main() {
-  obterUsuario(({ id, name }) => {
-    obterTelefone(id, ({ tel }) => {
-      obterEndereco(id, ({ address }) => {
-        console.log(`
-          Nome: ${name}
-          Telefone: ${tel},
-          Endereco: ${address},
-        `);
-      })
-    })
+function obterUsuario() {
+  return new Promise(function resolvePromise(resolve, reject) {
+    setTimeout(() => {
+      try {
+        return resolve({ id: 1243, name: 'Edson Bruno' });
+      } catch {
+        return reject({ error: true, message: 'DEU RUIM NO USUARIO' });
+      }
+    }, 1000);
   });
+};
 
+function obterTelefone(idUser) {
+  return new Promise(function resolvePromise(resolve, reject) {
+    setTimeout(() => {
+      try {
+        if (idUser !== 123) {
+          throw Error('ERRO ID DIFERENTE');
+        }
+        return resolve({ tel: '(11) 99586-2568' });
+      } catch (error) {
+        return reject({ error: true, message: `${error} DEU RUIM NO TELEFONE` });
+      }
+    }, 2000);
+  });
+};
+
+function obterEndereco(idUser) {
+  return new Promise(function resolvePromise(resolve, reject) {
+    setTimeout(() => {
+      try {
+        if (idUser !== 123) {
+          throw Error('ERRO ID DIFERENTE');
+        }
+        return resolve({ address: 'Rua Mococa, 269 - São Paulo - SP' });
+      } catch (error) {
+        return reject({ error: true, message: `${error} DEU RUIM NO ENDERECO` });
+      }
+    }, 3000);
+  });
+}
+
+const usuarioPromise = obterUsuario();
+
+function main() {
+  usuarioPromise
+    .then(({ id, name }) => {
+      return obterTelefone(id)
+        .then(({ tel }) => {
+          return obterEndereco(id)
+            .then(({ address }) => ({
+              id,
+              name,
+              tel,
+              address,
+            }));
+        })
+    })
+    .then((resultado) => console.log(resultado))
+    .catch(({ error, message }) => console.log(message))
 }
 main();
