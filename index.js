@@ -4,11 +4,14 @@
   2 - Obter endereço do usuário a partir do Id do usuário
 */
 
+const util = require('util');
+const obterEnderecoAsync = util.promisify(obterEndereco);
+
 function obterUsuario() {
   return new Promise(function resolvePromise(resolve, reject) {
     setTimeout(() => {
       try {
-        return resolve({ id: 1243, name: 'Edson Bruno' });
+        return resolve({ id: 123, name: 'Edson Bruno' });
       } catch {
         return reject({ error: true, message: 'DEU RUIM NO USUARIO' });
       }
@@ -31,37 +34,24 @@ function obterTelefone(idUser) {
   });
 };
 
-function obterEndereco(idUser) {
-  return new Promise(function resolvePromise(resolve, reject) {
-    setTimeout(() => {
-      try {
-        if (idUser !== 123) {
-          throw Error('ERRO ID DIFERENTE');
-        }
-        return resolve({ address: 'Rua Mococa, 269 - São Paulo - SP' });
-      } catch (error) {
-        return reject({ error: true, message: `${error} DEU RUIM NO ENDERECO` });
-      }
-    }, 3000);
-  });
-}
+function obterEndereco(idUser, callback) {
+  setTimeout(() => {
+    return callback(null, { address: 'Rua Mococa, 269 - São Paulo - SP' });
+  }, 3000);
+};
 
 const usuarioPromise = obterUsuario();
 
 function main() {
   usuarioPromise
     .then(({ id, name }) => {
-      return obterTelefone(id)
-        .then(({ tel }) => {
-          return obterEndereco(id)
-            .then(({ address }) => ({
-              id,
-              name,
-              tel,
-              address,
-            }));
-        })
+      return obterTelefone(id).then(({ tel }) => ({
+        id,
+        name,
+        tel
+      }));
     })
+    .then(({ id, name, tel }) => obterEnderecoAsync(id).then(({ address }) => ({ id, name, tel, address })))
     .then((resultado) => console.log(resultado))
     .catch(({ error, message }) => console.log(message))
 }
