@@ -32,11 +32,11 @@ function main() {
   obterUsuario(({ id, name }) => {
     obterTelefone(id, ({ tel }) => {
       obterEndereco(id, ({ address }) => {
-        return {
-          Nome: name,
-          Telefone: tel,
-          Endereco: address,
-        };
+        console.log(`
+          Nome: ${name}
+          Telefone: ${tel},
+          Endereco: ${address},
+        `);
       })
     })
   });
