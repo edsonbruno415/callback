@@ -42,17 +42,16 @@ function obterEndereco(idUser, callback) {
 
 const usuarioPromise = obterUsuario();
 
-function main() {
-  usuarioPromise
-    .then(({ id, name }) => {
-      return obterTelefone(id).then(({ tel }) => ({
-        id,
-        name,
-        tel
-      }));
-    })
-    .then(({ id, name, tel }) => obterEnderecoAsync(id).then(({ address }) => ({ id, name, tel, address })))
-    .then((resultado) => console.log(resultado))
-    .catch(({ error, message }) => console.log(message))
+async function main() {
+
+  const { id, name } = await obterUsuario();
+  const { tel: telefone } = await obterTelefone(id);
+  const { address: endereco } = await obterEnderecoAsync(id);
+
+  console.log(`
+  Nome: ${name},
+  Telefone: ${telefone}
+  Endereço: ${endereco}
+  `);
 }
 main();
